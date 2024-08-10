@@ -50,7 +50,8 @@ public class DefaultLineCommandService implements LineCommandService {
 
         Line line = new Line(
             lineRequest.getName(),
-            lineRequest.getColor()
+            lineRequest.getColor(),
+            lineRequest.getAdditionalFare()
         );
 
         line.addSection(section);

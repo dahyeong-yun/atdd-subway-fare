@@ -14,4 +14,5 @@ import io.restassured.response.Response;
 public class AcceptanceContext {
     public Map<String, Long> store = new HashMap<>();
     public ExtractableResponse<Response> response;
+    public Map<String, String> tokenStore = new HashMap<>();
 }

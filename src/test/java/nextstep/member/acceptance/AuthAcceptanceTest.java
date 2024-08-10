@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
+import nextstep.member.application.dto.TokenRequest;
 import nextstep.member.domain.Member;
 import nextstep.member.domain.MemberRepository;
 import nextstep.utils.AcceptanceTest;
@@ -27,14 +28,12 @@ class AuthAcceptanceTest extends AcceptanceTest {
     @Test
     void bearerAuth() {
         // given
-        memberRepository.save(new Member(사용자1.getEmail(), DEFAULT_PASSWORD, DEFAULT_AGE));
-
-        Map<String, String> params = new HashMap<>();
-        params.put("email", 사용자1.getEmail());
-        params.put("password", DEFAULT_PASSWORD);
+        Member member = new Member(사용자1.getEmail(), DEFAULT_PASSWORD, DEFAULT_AGE);
+        memberRepository.save(member);
+        TokenRequest tokenRequest = TokenRequest.ofEmailAndPassword(member.getEmail(), member.getPassword());
 
         // when
-        ExtractableResponse<Response> 로그인응답 = 로그인_요청(params);
+        ExtractableResponse<Response> 로그인응답 = 로그인_요청(tokenRequest);
 
         // then
         String accessToken = 로그인응답.jsonPath().getString("accessToken");
@@ -50,40 +49,43 @@ class AuthAcceptanceTest extends AcceptanceTest {
     @Test
     @DisplayName("존재하지 않는 회원으로 토큰을 생성하려고 하면 오류가 발생한다")
     void createToken_MemberNotFound() {
-        Map<String, String> params = new HashMap<>();
+        // given
+        TokenRequest tokenRequest = TokenRequest.ofEmailAndPassword(PROFILE_없는_사용자.getEmail(), DEFAULT_PASSWORD);
 
-        params.put("email", PROFILE_없는_사용자.getEmail());
-        params.put("password", DEFAULT_PASSWORD);
+        // when
+        ExtractableResponse<Response> response = 로그인_요청(tokenRequest);
 
-        ExtractableResponse<Response> response = 로그인_요청(params);
-
+        // then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
     }
 
     @Test
     @DisplayName("틀린 비밀번호로 토큰 생성을 요청하면 오류가 발생한다")
     void createToken_InvalidPassword() {
-        memberRepository.save(new Member(사용자2.getEmail(), DEFAULT_PASSWORD, DEFAULT_AGE));
+        // given
+        Member member = new Member(사용자2.getEmail(), DEFAULT_PASSWORD, DEFAULT_AGE);
+        memberRepository.save(member);
+        TokenRequest tokenRequest = TokenRequest.ofEmailAndPassword(member.getEmail(), WRONG_PASSWORD);
 
-        Map<String, String> params = new HashMap<>();
-        params.put("email", 사용자2.getEmail());
-        params.put("password", WRONG_PASSWORD);
+        // when
+        ExtractableResponse<Response> response = 로그인_요청(tokenRequest);
 
-        ExtractableResponse<Response> response = 로그인_요청(params);
-
+        // then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
     }
 
     @Test
     @DisplayName("Github 로그인을 통해 토큰을 발급받는다.")
     void githubAuth() {
-        memberRepository.save(new Member(사용자3.getEmail(), DEFAULT_PASSWORD, DEFAULT_AGE));
+        // given
+        Member member = new Member(사용자3.getEmail(), DEFAULT_PASSWORD, DEFAULT_AGE);
+        memberRepository.save(member);
+        TokenRequest tokenRequest = TokenRequest.ofCode(사용자3.getCode());
 
-        Map<String, String> params = new HashMap<>();
-        params.put("code", 사용자3.getCode());
+        // when
+        ExtractableResponse<Response> response = github_로그인_요청(tokenRequest);
 
-        ExtractableResponse<Response> response = github_로그인_요청(params);
-
+        // then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(response.jsonPath().getString("accessToken")).isNotBlank();
     }
@@ -91,16 +93,19 @@ class AuthAcceptanceTest extends AcceptanceTest {
     @Test
     @DisplayName("github를 통해 토큰을 생성하려고 할 때 존재하지 않는 회원에 대해 회원이 가입되고 토큰이 생성된다")
     void createTokenFromGithub_NewMember() {
+        // given
         String code = PROFILE_없는_사용자.getCode();
         String email = PROFILE_없는_사용자.getEmail();
 
-        Map<String, String> params = new HashMap<>();
-        params.put("code", code);
+        TokenRequest tokenRequest = TokenRequest.ofCode(code);
 
-        ExtractableResponse<Response> response = github_로그인_요청(params);
+        // when
+        ExtractableResponse<Response> response = github_로그인_요청(tokenRequest);
 
+        // then
         assertThat(response.jsonPath().getString("accessToken")).isNotBlank();
 
+        // then
         Member member = memberRepository.findByEmail(email).orElseThrow();
         assertThat(member).isNotNull();
         assertThat(member.getEmail()).isEqualTo(email);
@@ -109,11 +114,13 @@ class AuthAcceptanceTest extends AcceptanceTest {
     @Test
     @DisplayName("잘못된 코드 값으로 Github를 통해 토큰을 생성하려고 할 때 오류가 발생한다")
     void createTokenFromGithub_InvalidAccessToken() {
-        Map<String, String> params = new HashMap<>();
-        params.put("code", CODE_없는_사용자.getCode());
+        // given
+        TokenRequest tokenRequest = TokenRequest.ofCode(CODE_없는_사용자.getCode());
 
-        ExtractableResponse<Response> response = github_로그인_요청(params);
+        // when
+        ExtractableResponse<Response> response = github_로그인_요청(tokenRequest);
 
+        // then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.value());
     }
 }

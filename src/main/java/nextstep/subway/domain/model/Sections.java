@@ -5,6 +5,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Embeddable;
@@ -216,5 +219,10 @@ public class Sections {
         }
 
         return sections.get(index);
+    }
+
+    public boolean hasSection(Station upStation, Station downStation) {
+        return sections.stream()
+            .anyMatch(section -> section.hasSameUpStationWith(upStation) && section.hasSameDownStationWith(downStation));
     }
 }

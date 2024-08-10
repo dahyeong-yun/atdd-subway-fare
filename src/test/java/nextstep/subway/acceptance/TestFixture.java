@@ -152,4 +152,18 @@ public class TestFixture {
             .then().log().all()
             .extract();
     }
+
+    public static ExtractableResponse<Response> getPaths(Long source, Long target, PathType pathType, String accessToken) {
+        return RestAssured
+            .given().log().all()
+            .auth().oauth2(accessToken)
+            .queryParam("source", source)
+            .queryParam("target", target)
+            .queryParam("type", pathType.name())
+            .accept(MediaType.APPLICATION_JSON_VALUE)
+            .when()
+            .get("/paths")
+            .then().log().all()
+            .extract();
+    }
 }

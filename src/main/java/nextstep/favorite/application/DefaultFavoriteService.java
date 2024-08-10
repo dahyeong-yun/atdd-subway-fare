@@ -14,7 +14,6 @@ import nextstep.member.AuthenticationException;
 import nextstep.member.application.MemberService;
 import nextstep.member.domain.LoginMember;
 import nextstep.member.domain.Member;
-import nextstep.subway.domain.model.PathType;
 import nextstep.subway.domain.model.Station;
 import nextstep.subway.domain.service.PathService;
 import nextstep.subway.domain.service.StationService;

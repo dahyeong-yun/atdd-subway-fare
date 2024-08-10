@@ -1,6 +1,7 @@
 package nextstep.cucumber.steps;
 
 import static nextstep.subway.application.DefaultLineCommandService.*;
+import static nextstep.subway.domain.model.FareCalculator.*;
 import static org.assertj.core.api.Assertions.*;
 
 import java.util.List;
@@ -16,6 +17,9 @@ import io.cucumber.datatable.DataTable;
 import io.cucumber.java8.En;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
+import nextstep.member.acceptance.AuthSteps;
+import nextstep.member.acceptance.MemberSteps;
+import nextstep.member.application.dto.TokenRequest;
 import nextstep.subway.acceptance.TestFixture;
 import nextstep.subway.application.dto.LineRequest;
 import nextstep.subway.domain.model.PathType;
@@ -58,7 +62,8 @@ public class PathStepDef implements En {
                     startStationId,
                     endStationId,
                     Integer.parseInt(line.get("distance")),
-                    Integer.parseInt(line.get("duration"))
+                    Integer.parseInt(line.get("duration")),
+                    Integer.parseInt(line.get("additionalFare"))
                 );
                 ExtractableResponse<Response> response = TestFixture.createLine(lineRequest);
                 Long lineId = response.jsonPath().getLong("id");
@@ -89,6 +94,28 @@ public class PathStepDef implements En {
             }
         });
 
+        Given("회원가입을 요청하고", (DataTable table) -> {
+            List<Map<String, String>> members = table.asMaps(String.class, String.class);
+            for (Map<String, String> member : members) {
+                String email = member.get("email");
+                String password = member.get("password");
+                Integer age = Integer.parseInt(member.get("age"));
+                MemberSteps.회원_생성_요청(email, password, age);
+            }
+        });
+
+
+        When("로그인 요청을 하고", (DataTable table) -> {
+            List<Map<String, String>> users = table.asMaps(String.class, String.class);
+            for (Map<String, String> user : users) {
+                TokenRequest tokenRequest = TokenRequest.ofEmailAndPassword(user.get("email"), user.get("password"));
+                ExtractableResponse<Response> response = AuthSteps.로그인_요청(tokenRequest);
+
+                String accessToken = response.jsonPath().getString("accessToken");
+                context.tokenStore.put(user.get("email"), accessToken);
+            }
+        });
+
         When("{string}과 {string}의 경로를 조회하면", (String startStation, String endStation) -> {
             Long startStationId = context.store.get(startStation);
             Long endStationId = context.store.get(endStation);
@@ -102,6 +129,18 @@ public class PathStepDef implements En {
             context.response = response;
         });
 
+        When("로그인 사용자 {string}가 {string}과 {string}의 경로를 거리 기준으로 조회하면", (String email, String startStation, String endStation) -> {
+            Long startStationId = context.store.get(startStation);
+            Long endStationId = context.store.get(endStation);
+
+            if (startStationId == null || endStationId == null) {
+                throw new IllegalArgumentException(STATION_NOT_FOUND_MESSAGE);
+            }
+
+            String accessToken = context.tokenStore.get(email);
+            ExtractableResponse<Response> response = TestFixture.getPaths(startStationId, endStationId, PathType.DISTANCE, accessToken);
+            context.response = response;
+        });
 
         When("출발역이 null인 경로를 조회하면", () -> {
             ExtractableResponse<Response> response = TestFixture.getPaths(
@@ -200,8 +239,33 @@ public class PathStepDef implements En {
             assertThat(context.response.jsonPath().getInt("duration")).isEqualTo(102);
         });
 
+        Then("신논현역과 양재역의 총 거리와 소요 시간을 함께 응답한다", () -> {
+            assertThat(context.response.jsonPath().getInt("distance")).isEqualTo(71);
+            assertThat(context.response.jsonPath().getInt("duration")).isEqualTo(122);
+        });
+
         And("지하철 이용 요금도 함께 응답한다", () -> {
-            assertThat(context.response.jsonPath().getInt("fare")).isEqualTo(2150);
+            assertThat(context.response.jsonPath().getInt("fare")).isEqualTo(2650);
+        });
+
+        Then("유아 할인 요금이 적용된 경로 요금을 응답한다", () -> {
+            assertThat(context.response.jsonPath().getInt("fare")).isEqualTo(0);
+        });
+
+        Then("어린이 할인 요금이 적용된 경로 요금을 응답한다", () -> {
+            assertThat(context.response.jsonPath().getInt("fare")).isEqualTo(1150);
+        });
+
+        Then("청소년 할인 요금이 적용된 경로 요금을 응답한다", () -> {
+            assertThat(context.response.jsonPath().getInt("fare")).isEqualTo(1840);
+        });
+
+        Then("추가 요금이 포함된 기본 요금을 응답한다", () -> {
+            assertThat(context.response.jsonPath().getInt("fare")).isEqualTo(2650);
+        });
+
+        Then("가장 높은 추가 요금이 포함된 요금을 응답한다", () -> {
+            assertThat(context.response.jsonPath().getInt("fare")).isEqualTo(3250);
         });
     }
 }

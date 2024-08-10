@@ -2,13 +2,17 @@
 package nextstep.subway.application;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import org.jgrapht.GraphPath;
 import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.WeightedMultigraph;
 
+import nextstep.subway.domain.model.AgeGroup;
+import nextstep.subway.domain.model.FareCalculator;
 import nextstep.subway.domain.model.Line;
 import nextstep.subway.domain.model.Path;
 import nextstep.subway.domain.model.PathType;
@@ -51,7 +55,7 @@ public class DefaultPathFinder implements PathFinder {
     }
 
     @Override
-    public Path findPath(Station source, Station target, PathType pathType) {
+    public Path findPath(List<Line> lines, Station source, Station target, PathType pathType, AgeGroup ageGroup) {
         GraphPath<Station, DefaultWeightedEdge> graphPath;
         graphPath = getStationGraphPath(source, target, pathType);
 
@@ -62,8 +66,22 @@ public class DefaultPathFinder implements PathFinder {
         List<Station> stations = graphPath.getVertexList();
         int distance = calculateTotalDistance(stations);
         int duration = calculateTotalDuration(stations);
+        int fare = FareCalculator.calculateFare(distance, getRelevantLines(lines, stations), ageGroup);
+        return new Path(stations, distance, duration, fare);
+    }
 
-        return new Path(stations, distance, duration);
+    private List<Line> getRelevantLines(List<Line> lines, List<Station> stations) {
+        return IntStream.range(0, stations.size() - 1)
+            .boxed()
+            .flatMap(i -> getRelevantLine(lines, stations, i))
+            .distinct()
+            .collect(Collectors.toList());
+    }
+
+    private static Stream<Line> getRelevantLine(List<Line> lines, List<Station> stations, Integer i) {
+        return lines
+            .stream()
+            .filter(line -> line.hasSection(stations.get(i), stations.get(i + 1)));
     }
 
     private GraphPath<Station, DefaultWeightedEdge> getStationGraphPath(

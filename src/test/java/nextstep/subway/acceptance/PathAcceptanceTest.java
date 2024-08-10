@@ -47,9 +47,9 @@ class PathAcceptanceTest {
 
         잠실역 = createStationAndGetId("논현역");
 
-        신분당선 = createLineAndGetId(new LineRequest("신분당선", "red", 신논현역, 강남역, 11, 22));
-        이호선 = createLineAndGetId(new LineRequest("2호선", "green", 교대역, 강남역, 7, 14));
-        삼호선 = createLineAndGetId(new LineRequest("3호선", "orange", 교대역, 남부터미널역, 3, 6));
+        신분당선 = createLineAndGetId(new LineRequest("신분당선", "red", 신논현역, 강남역, 11, 22, 900));
+        이호선 = createLineAndGetId(new LineRequest("2호선", "green", 교대역, 강남역, 7, 14, 0));
+        삼호선 = createLineAndGetId(new LineRequest("3호선", "orange", 교대역, 남부터미널역, 3, 6, 500));
 
         addSection(이호선, 강남역, 역삼역, 13, 26);
         addSection(삼호선, 남부터미널역, 양재역, 5, 10);

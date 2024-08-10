@@ -28,6 +28,9 @@ public class Line {
     @Embedded
     private Sections sections = new Sections();
 
+    @Embedded
+    private AdditionalFare additionalFare;
+
     public Line() {
     }
 
@@ -35,13 +38,29 @@ public class Line {
         this.id = id;
         this.name = new LineName(name);
         this.color = new LineColor(color);
+        this.additionalFare = new AdditionalFare(0);
         this.sections = new Sections();
     }
 
     public Line(String name, String color) {
+        this(null, name, color, 0);
+    }
+
+    public Line(String name, String color, Integer additionalFare) {
+        this(null, name, color, additionalFare);
+    }
+
+    public Line(
+        Long id,
+        String name,
+        String color,
+        Integer additionalFare
+    ) {
+        this.id = id;
         this.name = new LineName(name);
         this.color = new LineColor(color);
         this.sections = new Sections();
+        this.additionalFare = new AdditionalFare(additionalFare);
     }
 
     public Long getId() {
@@ -54,6 +73,10 @@ public class Line {
 
     public String getColor() {
         return color.getValue();
+    }
+
+    public Integer getAdditionalFare() {
+        return additionalFare.getValue();
     }
 
     public Line getUpdated(String name, String color) {
@@ -94,6 +117,10 @@ public class Line {
         return sections.getOrderedUnmodifiableStations();
     }
 
+    public boolean hasSection(Station upStation, Station downStation) {
+        return sections.hasSection(upStation, downStation);
+    }
+
     @Override
     public boolean equals(Object object) {
         if (this == object) {
@@ -105,11 +132,11 @@ public class Line {
         }
 
         Line line = (Line)object;
-        return Objects.equals(name, line.name) && Objects.equals(color, line.color);
+        return Objects.equals(name, line.name) && Objects.equals(color, line.color) && Objects.equals(additionalFare, line.additionalFare);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, color);
+        return Objects.hash(name, color, additionalFare);
     }
 }

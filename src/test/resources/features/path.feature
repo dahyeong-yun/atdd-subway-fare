@@ -10,10 +10,10 @@ Feature: 지하철 경로 검색
       | 양재역   |
       | 논현역   |
     And 지하철 노선을 생성 요청하고
-      | name     | color  | startStation | endStation | distance | duration |
-      | 신분당선 | red    | 신논현역       | 강남역     | 31       | 42        |
-      | 2호선    | green  | 교대역       | 강남역     | 24        | 28        |
-      | 3호선    | orange | 교대역       | 남부터미널역     | 10       | 20       |
+      | name     | color  | startStation | endStation | distance | duration | additionalFare |
+      | 신분당선 | red    | 신논현역       | 강남역     | 31       | 42        | 900            |
+      | 2호선    | green  | 교대역       | 강남역     | 24        | 28        | 0            |
+      | 3호선    | orange | 교대역       | 남부터미널역     | 10       | 20       | 500            |
     And 구간을 추가 요청하고
       | line     | upStation | downStation | distance | duration |
       | 2호선    | 강남역     | 역삼역      | 23       | 46              |
@@ -71,3 +71,51 @@ Feature: 지하철 경로 검색
     Then 최소 시간 기준으로 경로가 정상적으로 조회된다
     And 총 거리와 소요 시간을 함께 응답한다
     And 지하철 이용 요금도 함께 응답한다
+
+  Scenario: 로그인한 유아 사용자가 경로를 조회할 때 요금이 없다
+    Given 회원가입을 요청하고
+      | email           |  password        | age  |
+      | baby@test.com  | default_password | 5    |
+    Given 로그인 요청을 하고
+      | email           | password          |
+      | baby@test.com  | default_password  |
+    When 로그인 사용자 "baby@test.com"가 "교대역"과 "양재역"의 경로를 거리 기준으로 조회하면
+    Then 경로가 정상적으로 조회된다
+    And 총 거리와 소요 시간을 함께 응답한다
+    And 유아 할인 요금이 적용된 경로 요금을 응답한다
+
+  Scenario: 로그인한 어린이 사용자가 경로를 조회할 때 할인된 요금이 적용된다
+    Given 회원가입을 요청하고
+      | email           |  password        | age  |
+      | child@test.com  | default_password | 9    |
+    Given 로그인 요청을 하고
+      | email           | password          |
+      | child@test.com  | default_password  |
+    When 로그인 사용자 "child@test.com"가 "교대역"과 "양재역"의 경로를 거리 기준으로 조회하면
+    Then 경로가 정상적으로 조회된다
+    And 총 거리와 소요 시간을 함께 응답한다
+    And 어린이 할인 요금이 적용된 경로 요금을 응답한다
+
+  Scenario: 로그인한 청소년 사용자가 경로를 조회할 때 할인된 요금이 적용된다
+    Given 회원가입을 요청하고
+      | email           | password         | age |
+      | teen@test.com   | default_password | 15  |
+    And 로그인 요청을 하고
+      | email           | password         |
+      | teen@test.com   | default_password |
+    When 로그인 사용자 "teen@test.com"가 "교대역"과 "양재역"의 경로를 거리 기준으로 조회하면
+    Then 경로가 정상적으로 조회된다
+    And 총 거리와 소요 시간을 함께 응답한다
+    And 청소년 할인 요금이 적용된 경로 요금을 응답한다
+
+  Scenario: 로그인하지 않은 사용자가 경로를 조회할 때 추가 요금이 포함된 기본 요금이 적용된다
+    When "교대역"과 "양재역"의 경로를 조회하면
+    Then 경로가 정상적으로 조회된다
+    And 총 거리와 소요 시간을 함께 응답한다
+    And 추가 요금이 포함된 기본 요금을 응답한다
+
+  Scenario: 로그인하지 않은 사용자가 여러 노선의 추가 요금이 포함된 경로를 조회할 때 가장 높은 추가 요금이 적용된다
+    When "신논현역"과 "양재역"의 경로를 조회하면
+    Then 경로가 정상적으로 조회된다
+    And 신논현역과 양재역의 총 거리와 소요 시간을 함께 응답한다
+    And 가장 높은 추가 요금이 포함된 요금을 응답한다
