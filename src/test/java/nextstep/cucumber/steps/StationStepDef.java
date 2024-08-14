@@ -4,7 +4,6 @@ import io.cucumber.java8.En;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
-import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
@@ -17,24 +16,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class StationStepDef implements En {
     ExtractableResponse<Response> response;
 
-    @LocalServerPort
-    int port;
-
     public StationStepDef() {
-        Before(() -> {
-            RestAssured.port = port;
-        });
+        Given("{string} 역을 생성 하고", this::지하철_역_생성);
 
         When("지하철역을 생성하면", () -> {
-            Map<String, String> params = new HashMap<>();
-            params.put("name", "강남역");
-            response = RestAssured.given().log().all()
-                    .body(params)
-                    .contentType(MediaType.APPLICATION_JSON_VALUE)
-                    .when()
-                    .post("/stations")
-                    .then().log().all()
-                    .extract();
+            지하철_역_생성("강남역");
         });
 
         Then("지하철역이 생성된다", () -> {
@@ -49,6 +35,18 @@ public class StationStepDef implements En {
                             .extract().jsonPath().getList("name", String.class);
             assertThat(stationNames).containsAnyOf("강남역");
         });
+    }
+
+    private void 지하철_역_생성(String stationName) {
+        Map<String, String> params = new HashMap<>();
+        params.put("name", stationName);
+        response = RestAssured.given().log().all()
+                .body(params)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when()
+                .post("/stations")
+                .then().log().all()
+                .extract();
     }
 
 }
