@@ -1,18 +1,16 @@
 package nextstep.member.application;
 
-import nextstep.member.application.dto.MemberRequest;
-import nextstep.member.application.dto.MemberResponse;
+import lombok.RequiredArgsConstructor;
+import nextstep.member.presentation.MemberRequest;
+import nextstep.auth.domain.LoginMember;
 import nextstep.member.domain.Member;
-import nextstep.member.domain.MemberRepository;
+import nextstep.member.infrastructure.MemberRepository;
 import org.springframework.stereotype.Service;
 
+@RequiredArgsConstructor
 @Service
 public class MemberService {
-    private MemberRepository memberRepository;
-
-    public MemberService(MemberRepository memberRepository) {
-        this.memberRepository = memberRepository;
-    }
+    private final MemberRepository memberRepository;
 
     public MemberResponse createMember(MemberRequest request) {
         Member member = memberRepository.save(request.toMember());
@@ -33,17 +31,9 @@ public class MemberService {
         memberRepository.deleteById(id);
     }
 
-    public Member findMemberByEmail(String email) {
-        return memberRepository.findByEmail(email).orElseThrow(RuntimeException::new);
-    }
-
-    public Member save(MemberRequest request) {
-        return memberRepository.save(request.toMember());
-    }
-
-    public MemberResponse findByMe(String email) {
+    public MemberResponse findMe(String email) {
         return memberRepository.findByEmail(email)
-                .map(MemberResponse::of)
+                .map(it -> MemberResponse.of(it))
                 .orElseThrow(RuntimeException::new);
     }
 }

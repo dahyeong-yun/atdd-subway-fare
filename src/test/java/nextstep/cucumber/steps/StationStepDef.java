@@ -4,6 +4,7 @@ import io.cucumber.java8.En;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
@@ -16,7 +17,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class StationStepDef implements En {
     ExtractableResponse<Response> response;
 
+    @LocalServerPort
+    int port;
+
     public StationStepDef() {
+        Before(() -> {
+            RestAssured.port = port;
+        });
+
         When("지하철역을 생성하면", () -> {
             Map<String, String> params = new HashMap<>();
             params.put("name", "강남역");

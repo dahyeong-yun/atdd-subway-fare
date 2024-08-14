@@ -1,54 +1,33 @@
 package nextstep.favorite.domain;
 
-import nextstep.member.domain.Member;
-import nextstep.subway.domain.Station;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
 @Entity
 public class Favorite {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "sourceStationId")
-    private Station sourceStation;
+    private Long memberId;
+    private Long sourceStationId;
+    private Long targetStationId;
 
-    @ManyToOne
-    @JoinColumn(name = "targetStationId")
-    private Station targetStation;
-
-    @ManyToOne
-    @JoinColumn(name = "memberId")
-    private Member member;
-
-    public Favorite() {
+    private Favorite(Long memberId, Long sourceStationId, Long targetStationId) {
+        this.memberId = memberId;
+        this.sourceStationId = sourceStationId;
+        this.targetStationId = targetStationId;
     }
 
-    public Favorite(Station sourceStation, Station targetStation, Member member) {
-        this.sourceStation = sourceStation;
-        this.targetStation = targetStation;
-        this.member = member;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public Station getSourceStation() {
-        return sourceStation;
-    }
-
-    public Station getTargetStation() {
-        return targetStation;
-    }
-
-    public Member getMember() {
-        return member;
-    }
-
-    public boolean isCreatedBy(Member member) {
-        return this.member.equals(member);
+    public static Favorite of(Long memberId, Long sourceStationId, Long targetStationId) {
+        return new Favorite(memberId, sourceStationId, targetStationId);
     }
 }
