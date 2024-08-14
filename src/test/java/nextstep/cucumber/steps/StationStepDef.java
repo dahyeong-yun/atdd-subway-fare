@@ -1,9 +1,11 @@
 package nextstep.cucumber.steps;
 
+import io.cucumber.datatable.DataTable;
 import io.cucumber.java8.En;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
+import nextstep.cucumber.SharedContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
@@ -14,10 +16,20 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class StationStepDef implements En {
+    private final SharedContext sharedContext;
     ExtractableResponse<Response> response;
 
-    public StationStepDef() {
+    public StationStepDef(SharedContext sharedContext) {
+        this.sharedContext = sharedContext;
         Given("{string} 역을 생성 하고", this::지하철_역_생성);
+
+        Given("다음과 같은 지하철 역들을 생성하고", (DataTable dataTable) -> {
+            List<Map<String, String>> rows = dataTable.asMaps(String.class, String.class);
+            for (Map<String, String> row : rows) {
+                String stationName = row.get("역 이름");
+                지하철_역_생성(stationName);
+            }
+        });
 
         When("지하철역을 생성하면", () -> {
             지하철_역_생성("강남역");
@@ -47,6 +59,9 @@ public class StationStepDef implements En {
                 .post("/stations")
                 .then().log().all()
                 .extract();
+
+        Long stationId = response.jsonPath().getLong("id");
+        sharedContext.addStationId(stationName, stationId);
     }
 
 }
