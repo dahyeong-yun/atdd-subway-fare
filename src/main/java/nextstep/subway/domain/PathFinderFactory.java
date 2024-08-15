@@ -10,19 +10,14 @@ import java.util.List;
 public class PathFinderFactory {
     public static PathFinder createPathFinder(List<Section> allSections, List<Station> allStations, PathType pathType) {
         WeightedMultigraph<Station, DefaultWeightedEdge> graph = new WeightedMultigraph<>(DefaultWeightedEdge.class);
-        if(pathType == PathType.DISTANCE) {
-            allStations.forEach(graph::addVertex);
-            allSections.forEach(section -> graph.setEdgeWeight(
-                    graph.addEdge(section.getUpStation(), section.getDownStation()),
-                    section.getSectionDistance().getDistance()
-            ));
-        } else {
-            allStations.forEach(graph::addVertex);
-            allSections.forEach(section -> graph.setEdgeWeight(
-                    graph.addEdge(section.getUpStation(), section.getDownStation()),
-                    section.getSectionDuration()
-            ));
-        }
+        SectionWeightCalculator calculator = SectionWeightCalculatorFactory.getCalculator(pathType);
+
+        allStations.forEach(graph::addVertex);
+        allSections.forEach(section -> graph.setEdgeWeight(
+                graph.addEdge(section.getUpStation(), section.getDownStation()),
+                calculator.calculateWeight(section)
+        ));
+
         return new PathFinder(graph);
     }
 }
