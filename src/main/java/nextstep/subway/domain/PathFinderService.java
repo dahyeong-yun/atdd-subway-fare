@@ -1,7 +1,6 @@
 package nextstep.subway.domain;
 
 public interface PathFinderService {
-    boolean isValidPath(Long source, Long target);
-
-    PathResult findPath(Long source, Long target);
+    PathResult findPath(Long sourceId, Long targetId, PathType pathType);
+    boolean isValidPath(Long sourceId, Long targetId);
 }

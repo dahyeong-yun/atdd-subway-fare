@@ -15,7 +15,7 @@ public class PathFinderServiceImpl implements PathFinderService {
     private final StationRepository stationRepository;
 
     @Override
-    public PathResult findPath(Long sourceId, Long targetId) {
+    public PathResult findPath(Long sourceId, Long targetId, PathType pathType) {
         List<Section> allSections = sectionRepository.findAll();
         List<Station> allStations = stationRepository.findAll();
 
@@ -24,15 +24,15 @@ public class PathFinderServiceImpl implements PathFinderService {
         Station targetStation = stationRepository.findById(targetId)
                 .orElseThrow(() -> new StationNotFoundException(targetId));
 
-        PathFinder pathFinder = PathFinderFactory.createPathFinder(allSections, allStations);
-        return pathFinder.getShortestPath(sourceStation, targetStation);
+        PathFinder pathFinder = PathFinderFactory.createPathFinder(allSections, allStations, pathType);
+        return pathFinder.getShortestPath(sourceStation, targetStation, pathType);
     }
 
     @Override
     public boolean isValidPath(Long sourceId, Long targetId) {
         try {
-            PathResult pathResult = findPath(sourceId, targetId);
-            return !pathResult.getPathStations().isEmpty() && pathResult.getTotalDistance() > 0;
+            PathResult pathResult = findPath(sourceId, targetId, PathType.DISTANCE);
+            return !pathResult.getPathStations().isEmpty() && pathResult.getTotalPathWeight() > 0;
         } catch (Exception e) {
             return false;
         }

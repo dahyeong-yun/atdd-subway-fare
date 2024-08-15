@@ -51,7 +51,7 @@ public class PathStepDef implements En {
             int expectedValue = Integer.parseInt(row.get(valueType.equals("distance") ? "거리" : "시간"));
 
             List<String> actualStations = response.jsonPath().getList("stations.name");
-            int actualValue = response.jsonPath().getInt(valueType);
+            int actualValue = response.jsonPath().getInt("amount");
 
             String actualPath = String.join(" - ", actualStations);
 

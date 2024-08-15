@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import nextstep.common.exception.PathNotFoundException;
 import nextstep.subway.domain.PathFinderService;
 import nextstep.subway.domain.PathResult;
+import nextstep.subway.domain.PathType;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
@@ -16,7 +17,10 @@ public class PathService {
             throw new PathNotFoundException(sourceId, targetId);
         }
 
-        PathResult pathResult = pathFinderService.findPath(sourceId, targetId);
-        return PathResponse.of(pathResult.getPathStations(), pathResult.getTotalDistance());
+        PathType pathType = PathType.valueOf(type.toUpperCase());
+        PathResult pathResult = pathFinderService.findPath(sourceId, targetId, pathType);
+
+
+        return PathResponse.of(pathResult.getPathStations(), pathType, pathResult.getTotalPathWeight());
     }
 }

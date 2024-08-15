@@ -30,6 +30,7 @@ public class Section {
     @Column(nullable = false)
     private SectionDistance sectionDistance;
 
+    @Column
     private int sectionDuration;
 
     private Section(Line line, Station upStation, Station downStation, int distance, int duration) {
@@ -37,6 +38,7 @@ public class Section {
         this.upStation = upStation;
         this.downStation = downStation;
         this.sectionDistance = new SectionDistance(distance);
+        this.sectionDuration = duration;
     }
 
     public static Section createSection(Line line, Station upStation, Station downStation, int distance, int duration) {

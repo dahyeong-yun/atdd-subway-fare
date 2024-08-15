@@ -61,7 +61,7 @@ class PathFinderTest {
 
         List<Section> allSections = Arrays.asList(section1, section2, section3, section4, section5);
 
-        pathFinder = PathFinderFactory.createPathFinder(allSections, allStations);
+        pathFinder = PathFinderFactory.createPathFinder(allSections, allStations, PathType.DISTANCE);
         graph = pathFinder.getGraph();
     }
 
@@ -91,7 +91,7 @@ class PathFinderTest {
         Station 강남역 = graph.vertexSet().stream().filter(s -> s.getId().equals(강남역_ID)).findFirst().orElseThrow();
         Station 정자역 = graph.vertexSet().stream().filter(s -> s.getId().equals(정자역_ID)).findFirst().orElseThrow();
 
-        PathResult shortestPath = pathFinder.getShortestPath(강남역, 정자역);
+        PathResult shortestPath = pathFinder.getShortestPath(강남역, 정자역, PathType.DISTANCE);
 
         assertThat(shortestPath).isNotNull();
         assertThat(shortestPath.getPathStations()).extracting(Station::getId)
@@ -109,7 +109,7 @@ class PathFinderTest {
         Station 강남역 = graph.vertexSet().stream().filter(s -> s.getId().equals(강남역_ID)).findFirst().orElseThrow();
 
         PathNotFoundException exception = assertThrows(PathNotFoundException.class, () -> {
-            pathFinder.getShortestPath(강남역, 고립역);
+            pathFinder.getShortestPath(강남역, 고립역, PathType.DISTANCE);
         });
 
         assertThat(exception.getMessage()).contains(강남역_ID.toString(), 고립역_ID.toString());
@@ -121,7 +121,7 @@ class PathFinderTest {
         Station 강남역 = graph.vertexSet().stream().filter(s -> s.getId().equals(강남역_ID)).findFirst().orElseThrow();
 
         PathNotFoundException exception = assertThrows(PathNotFoundException.class, () -> {
-            pathFinder.getShortestPath(강남역, 강남역);
+            pathFinder.getShortestPath(강남역, 강남역, PathType.DISTANCE);
         });
 
         assertThat(exception.getMessage())

@@ -86,7 +86,7 @@ public class PathFinderAcceptanceTest {
         assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(stationNames).contains("교대역", "강남역", "양재역");
         assertThat(stationIds).containsExactly(교대역_ID, 강남역_ID, 양재역_ID);
-        assertThat(response.jsonPath().getInt("distance")).isEqualTo(35);
+        assertThat(response.jsonPath().getInt("amount")).isEqualTo(35);
     }
 
     /**

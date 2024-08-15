@@ -16,7 +16,7 @@ import java.util.List;
 public class PathFinder {
     private final WeightedMultigraph<Station, DefaultWeightedEdge> graph;
 
-    public PathResult getShortestPath(Station sourceStation, Station targetStation) {
+    public PathResult getShortestPath(Station sourceStation, Station targetStation, PathType pathType) {
         if (sourceStation.equals(targetStation)) {
             throw new PathNotFoundException(sourceStation.getId(), targetStation.getId());
         }
@@ -29,8 +29,8 @@ public class PathFinder {
         }
 
         List<Station> path = shortestPathStationGraph.getVertexList();
-        int totalDistance = (int) shortestPathStationGraph.getWeight();
+        int totalWeight = (int) shortestPathStationGraph.getWeight();
 
-        return new PathResult(path, totalDistance);
+        return new PathResult(path, pathType, totalWeight);
     }
 }
