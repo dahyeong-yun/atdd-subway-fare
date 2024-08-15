@@ -36,7 +36,8 @@ class SectionsTest {
                 신분당선,
                 강남역,
                 신논현역,
-                3
+                3,
+                60
         );
     }
 
@@ -49,7 +50,8 @@ class SectionsTest {
                 신분당선,
                 신논현역,
                 신사역,
-                1
+                1,
+                60
         );
 
         // when
@@ -71,7 +73,8 @@ class SectionsTest {
                 신분당선,
                 강남역,
                 신사역,
-                1
+                1,
+                60
         );
 
         // when
@@ -93,7 +96,8 @@ class SectionsTest {
                 신분당선,
                 판교역,
                 정자역,
-                1
+                1,
+                60
         );
 
         // when & then
@@ -111,7 +115,8 @@ class SectionsTest {
                 신분당선,
                 강남역,
                 신논현역,
-                1
+                1,
+                60
         );
 
         // when & then
@@ -130,7 +135,8 @@ class SectionsTest {
                     신분당선,
                     강남역,
                     신논현역,
-                    0
+                    0,
+                    60
             );
         })
                 .isInstanceOf(InvalidSectionException.class)
@@ -146,7 +152,8 @@ class SectionsTest {
                 신분당선,
                 강남역,
                 판교역,
-                25
+                25,
+                60
         );
 
         // when & then

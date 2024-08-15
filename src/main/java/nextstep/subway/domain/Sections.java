@@ -102,12 +102,14 @@ public class Sections {
         Station updatedUpStation = getUpdatedUpStation(existingSection, newSection, isUpStationConnected);
         Station updatedDownStation = getUpdatedDownStation(existingSection, newSection, isUpStationConnected);
         int updatedDistance = existingSection.getSectionDistance().minus(newSection.getSectionDistance()).getDistance();
+        int updatedDuration = existingSection.getSectionDuration() - newSection.getSectionDuration();
 
         return Section.createSection(
                 existingSection.getLine(),
                 updatedUpStation,
                 updatedDownStation,
-                updatedDistance
+                updatedDistance,
+                updatedDuration
         );
     }
 
@@ -167,7 +169,8 @@ public class Sections {
                 previousSection.getLine(),
                 previousSection.getUpStation(),
                 nextSection.getDownStation(),
-                previousSection.getSectionDistance().plus(nextSection.getSectionDistance()).getDistance()
+                previousSection.getSectionDistance().plus(nextSection.getSectionDistance()).getDistance(),
+                previousSection.getSectionDuration() + nextSection.getSectionDuration()
         );
         sections.remove(previousSection);
         sections.remove(nextSection);

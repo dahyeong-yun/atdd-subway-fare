@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 public class PathResponse {
     private List<StationResponse> stations;
     private int distance;
+    private int duration;
 
     public static PathResponse of(List<Station> stations, int distance) {
         List<StationResponse> stationResponses = stations.stream().map(StationResponse::of).collect(Collectors.toList());

@@ -31,7 +31,8 @@ public class SectionService {
                 line,
                 upStation,
                 downStation,
-                sectionRequest.getDistance()
+                sectionRequest.getDistance(),
+                sectionRequest.getDuration()
         );
         line.addSection(requestSection);
 

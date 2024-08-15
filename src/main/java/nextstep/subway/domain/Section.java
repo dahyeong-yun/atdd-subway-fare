@@ -30,18 +30,20 @@ public class Section {
     @Column(nullable = false)
     private SectionDistance sectionDistance;
 
-    private Section(Line line, Station upStation, Station downStation, int distance) {
+    private int sectionDuration;
+
+    private Section(Line line, Station upStation, Station downStation, int distance, int duration) {
         this.line = line;
         this.upStation = upStation;
         this.downStation = downStation;
         this.sectionDistance = new SectionDistance(distance);
     }
 
-    public static Section createSection(Line line, Station upStation, Station downStation, int distance) {
+    public static Section createSection(Line line, Station upStation, Station downStation, int distance, int duration) {
         assert line != null;
         assert upStation != null;
         assert downStation != null;
 
-        return new Section(line, upStation, downStation, distance);
+        return new Section(line, upStation, downStation, distance, duration);
     }
 }

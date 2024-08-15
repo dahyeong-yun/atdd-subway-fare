@@ -17,8 +17,11 @@ public class PathController {
     private final PathService pathService;
 
     @GetMapping(produces = "application/json")
-    public ResponseEntity<PathResponse> createPath(@RequestParam Long source, @RequestParam Long target) {
-        PathResponse pathResponse = pathService.getPath(source, target);
+    public ResponseEntity<PathResponse> createPath(
+            @RequestParam Long source,
+            @RequestParam Long target,
+            @RequestParam(defaultValue = "DISTANCE") String type) {
+        PathResponse pathResponse = pathService.getPath(source, target, type);
         return ResponseEntity.ok().body(pathResponse);
     }
 }

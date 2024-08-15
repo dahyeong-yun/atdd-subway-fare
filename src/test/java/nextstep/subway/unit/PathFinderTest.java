@@ -53,11 +53,11 @@ class PathFinderTest {
         Line 신분당선 = new Line("신분당선", "bg-red-600");
         Line 다른노선 = new Line("다른노선", "bg-blue-600");
 
-        Section section1 = Section.createSection(신분당선, 강남역, 신논현역, 10);
-        Section section2 = Section.createSection(신분당선, 신논현역, 신사역, 15);
-        Section section3 = Section.createSection(다른노선, 신사역, 판교역, 20);
-        Section section4 = Section.createSection(다른노선, 판교역, 정자역, 25);
-        Section section5 = Section.createSection(다른노선, 신논현역, 판교역, 30);
+        Section section1 = Section.createSection(신분당선, 강남역, 신논현역, 10, 60);
+        Section section2 = Section.createSection(신분당선, 신논현역, 신사역, 15, 60);
+        Section section3 = Section.createSection(다른노선, 신사역, 판교역, 20, 60);
+        Section section4 = Section.createSection(다른노선, 판교역, 정자역, 25, 60);
+        Section section5 = Section.createSection(다른노선, 신논현역, 판교역, 30, 60);
 
         List<Section> allSections = Arrays.asList(section1, section2, section3, section4, section5);
 

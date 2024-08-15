@@ -36,7 +36,8 @@ public class Line {
                 createdLine,
                 upStation,
                 downStation,
-                lineRequest.getDistance()
+                lineRequest.getDistance(),
+                lineRequest.getDuration()
         ));
 
         return createdLine;

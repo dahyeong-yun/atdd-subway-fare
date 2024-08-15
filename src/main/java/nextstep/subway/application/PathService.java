@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 public class PathService {
     private final PathFinderService pathFinderService;
 
-    public PathResponse getPath(Long sourceId, Long targetId) {
+    public PathResponse getPath(Long sourceId, Long targetId, String type) {
         if (!pathFinderService.isValidPath(sourceId, targetId)) {
             throw new PathNotFoundException(sourceId, targetId);
         }

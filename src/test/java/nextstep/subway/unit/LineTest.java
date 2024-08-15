@@ -34,7 +34,8 @@ class LineTest {
                 신분당선,
                 강남역,
                 신논현역,
-                3
+                3,
+                60
         );
     }
 
@@ -99,7 +100,7 @@ class LineTest {
     void deleteMiddleStation() {
         // given
         신분당선.addSection(새로운구간);
-        신분당선.addSection(Section.createSection(신분당선, 신논현역, 신사역, 2));
+        신분당선.addSection(Section.createSection(신분당선, 신논현역, 신사역, 2, 60));
 
         // when
         신분당선.deleteStation(신논현역);
@@ -115,7 +116,7 @@ class LineTest {
     void deleteFirstStation() {
         // given
         신분당선.addSection(새로운구간);
-        신분당선.addSection(Section.createSection(신분당선, 신논현역, 신사역, 2));
+        신분당선.addSection(Section.createSection(신분당선, 신논현역, 신사역, 2, 60));
 
         // when
         신분당선.deleteStation(강남역);
@@ -131,7 +132,7 @@ class LineTest {
     void deleteLastStation() {
         // given
         신분당선.addSection(새로운구간);
-        신분당선.addSection(Section.createSection(신분당선, 신논현역, 신사역, 2));
+        신분당선.addSection(Section.createSection(신분당선, 신논현역, 신사역, 2, 60));
 
         // when
         신분당선.deleteStation(신사역);
