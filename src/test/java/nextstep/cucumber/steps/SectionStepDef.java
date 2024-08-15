@@ -26,12 +26,13 @@ public class SectionStepDef implements En {
                 String upStation = row.get("상행역");
                 String downStation = row.get("하행역");
                 int distance = Integer.parseInt(row.get("거리"));
+                int duration = Integer.parseInt(row.get("시간"));
 
                 Long lineId = sharedContext.getLineId(lineName);
                 Long upStationId = sharedContext.getStationId(upStation);
                 Long downStationId = sharedContext.getStationId(downStation);
 
-                SectionRequest sectionRequest = new SectionRequest(upStationId, downStationId, distance);
+                SectionRequest sectionRequest = new SectionRequest(upStationId, downStationId, distance, duration);
                 지하철_구간_생성(lineId, sectionRequest);
             }
         });

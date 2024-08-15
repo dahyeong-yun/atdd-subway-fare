@@ -42,7 +42,7 @@ class LineTest {
     @DisplayName("지하철 노선 생성")
     void createLineWithStations() {
         // given
-        LineRequest lineRequest = new LineRequest("신분당선", "bg-red-600", 10L,9L,9);
+        LineRequest lineRequest = new LineRequest("신분당선", "bg-red-600", 10L,9L,9, 60);
 
         // when
         Line line = Line.createLine(강남역, 판교역, lineRequest);

@@ -36,7 +36,7 @@ public class SectionAcceptanceTest {
         신사역_ID = 지하철_역_생성("신사역").body().jsonPath().getLong("id");
         신논현역_ID = 지하철_역_생성("신논현역").body().jsonPath().getLong("id");
 
-        신분당선_request = new LineRequest("신분당선", "bg-red-600", 강남역_ID, 신사역_ID, 20);
+        신분당선_request = new LineRequest("신분당선", "bg-red-600", 강남역_ID, 신사역_ID, 20, 60);
         신분당선_ID = LineSteps.지하철_노선_생성(신분당선_request).body().jsonPath().getLong("id");
     }
 
@@ -50,7 +50,7 @@ public class SectionAcceptanceTest {
     @DisplayName("지하철 구간을 생성한다.")
     void createSection() {
         // when
-        ExtractableResponse<Response> response = 지하철_구간_생성(신분당선_ID, new SectionRequest(강남역_ID, 신논현역_ID, 10));
+        ExtractableResponse<Response> response = 지하철_구간_생성(신분당선_ID, new SectionRequest(강남역_ID, 신논현역_ID, 10, 60));
 
         // then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.CREATED.value());
@@ -69,7 +69,7 @@ public class SectionAcceptanceTest {
         // given
 
         // when
-        지하철_구간_생성(신분당선_ID, new SectionRequest(신논현역_ID, 신사역_ID, 15));
+        지하철_구간_생성(신분당선_ID, new SectionRequest(신논현역_ID, 신사역_ID, 15, 60));
         LineResponse findLine = 노선_아이디로_지하철_노선_찾기(신분당선_ID);
 
         // then
@@ -85,7 +85,7 @@ public class SectionAcceptanceTest {
     @DisplayName("지하철 구간을 삭제한다.")
     void deleteSection() {
         // given
-        ExtractableResponse<Response> response = 지하철_구간_생성(신분당선_ID, new SectionRequest(강남역_ID, 신논현역_ID, 10));
+        ExtractableResponse<Response> response = 지하철_구간_생성(신분당선_ID, new SectionRequest(강남역_ID, 신논현역_ID, 10, 60));
 
         // when
         Long id = response.body().jsonPath().getLong("sectionId");
@@ -106,7 +106,7 @@ public class SectionAcceptanceTest {
     @DisplayName("지하철 노선에 포함된 역을 위치에 상관없이 삭제할 수 있다.")
     void deleteMiddleSection() {
         // given
-        지하철_구간_생성(신분당선_ID, new SectionRequest(신논현역_ID, 신사역_ID, 15));
+        지하철_구간_생성(신분당선_ID, new SectionRequest(신논현역_ID, 신사역_ID, 15, 60));
 
         // when
         지하철_노선_내_지하철_역_삭제(신분당선_ID, 신논현역_ID);

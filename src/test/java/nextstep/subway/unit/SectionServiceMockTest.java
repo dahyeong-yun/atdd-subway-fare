@@ -49,7 +49,8 @@ public class SectionServiceMockTest {
                 "bg-red-600",
                 강남역_ID,
                 신논현역_ID,
-                10
+                10,
+                60
         );
         Line 신분당선 = Line.createLine(강남역, 신논현역, lineRequest);
 
@@ -59,7 +60,7 @@ public class SectionServiceMockTest {
         when(sectionRepository.save(any(Section.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // when
-        sectionService.addSection(신분당선_ID, new SectionRequest(신논현역_ID, 신사역_ID, 5));
+        sectionService.addSection(신분당선_ID, new SectionRequest(신논현역_ID, 신사역_ID, 5, 60));
 
         // then
         assertThat(신분당선.getSections().getStations().size()).isEqualTo(3);

@@ -37,7 +37,7 @@ public class SectionServiceTest {
         SectionResponse sectionResponse
                 = sectionService.addSection(
                 신분당선.getId(),
-                new SectionRequest(강남역.getId(), 신논현역.getId(), 5)
+                new SectionRequest(강남역.getId(), 신논현역.getId(), 5, 60)
         );
 
         // then
