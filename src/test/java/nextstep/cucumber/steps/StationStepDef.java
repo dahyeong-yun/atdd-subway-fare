@@ -21,6 +21,7 @@ public class StationStepDef implements En {
 
     public StationStepDef(SharedContext sharedContext) {
         this.sharedContext = sharedContext;
+
         Given("{string} 역을 생성 하고", this::지하철_역_생성);
 
         Given("다음과 같은 지하철 역들을 생성하고", (DataTable dataTable) -> {

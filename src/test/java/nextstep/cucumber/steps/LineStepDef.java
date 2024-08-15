@@ -18,6 +18,7 @@ public class LineStepDef implements En {
 
     public LineStepDef(SharedContext sharedContext) {
         this.sharedContext = sharedContext;
+
         Given("다음과 같은 지하철 노선들을 생성하고", (DataTable dataTable) -> {
             List<Map<String, String>> rows = dataTable.asMaps(String.class, String.class);
             for (Map<String, String> row : rows) {
