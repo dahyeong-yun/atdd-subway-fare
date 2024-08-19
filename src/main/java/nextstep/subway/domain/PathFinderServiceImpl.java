@@ -1,6 +1,7 @@
 package nextstep.subway.domain;
 
 import lombok.RequiredArgsConstructor;
+import nextstep.common.exception.PathNotFoundException;
 import nextstep.common.exception.StationNotFoundException;
 import nextstep.subway.infrastructure.SectionRepository;
 import nextstep.subway.infrastructure.StationRepository;
@@ -31,21 +32,13 @@ public class PathFinderServiceImpl implements PathFinderService {
         PathFinder pathFinder = PathFinderFactory.createPathFinder(allSections, allStations, pathType);
         PathResult shortestPath = pathFinder.getShortestPath(sourceStation, targetStation, pathType);
 
+        if (shortestPath.isNotValidPath()) {
+            throw new PathNotFoundException(sourceStation.getId(), targetStation.getId());
+        }
+
         int totalDistance = distanceCalculator.calculateTotalDistance(shortestPath.getPathStations(), allSections);
         int fare = fareCalculator.calculateFare(totalDistance);
 
         return shortestPath.addFare(fare);
-    }
-
-
-
-    @Override
-    public boolean isValidPath(Long sourceId, Long targetId) {
-        try {
-            PathResult pathResult = findPath(sourceId, targetId, PathType.DISTANCE);
-            return !pathResult.getPathStations().isEmpty() && pathResult.getTotalPathWeight() > 0;
-        } catch (Exception e) {
-            return false;
-        }
     }
 }

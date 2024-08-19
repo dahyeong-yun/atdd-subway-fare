@@ -19,4 +19,8 @@ public class PathResult {
     public PathResult addFare(int fare) {
         return new PathResult(pathStations, pathType, totalPathWeight, fare);
     }
+
+    public boolean isNotValidPath() {
+        return this.getPathStations().isEmpty() || this.getTotalPathWeight() <= 0;
+    }
 }

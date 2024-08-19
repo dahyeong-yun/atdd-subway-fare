@@ -31,8 +31,6 @@ public class PathFinder {
         List<Station> path = shortestPathStationGraph.getVertexList();
         int totalWeight = (int) shortestPathStationGraph.getWeight();
 
-
-
         return new PathResult(path, pathType, totalWeight);
     }
 }
