@@ -21,6 +21,6 @@ public class PathService {
         PathResult pathResult = pathFinderService.findPath(sourceId, targetId, pathType);
 
 
-        return PathResponse.of(pathResult.getPathStations(), pathType, pathResult.getTotalPathWeight());
+        return PathResponse.of(pathResult, pathType);
     }
 }

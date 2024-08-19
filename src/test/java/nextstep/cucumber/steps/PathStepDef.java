@@ -26,12 +26,12 @@ public class PathStepDef implements En {
             경로_찾기(sourceStationId, targetStationId, pathType);
         });
 
-        Then("다음과 같은 경로와 거리를 응답받는다", (DataTable dataTable) -> {
-            검증_경로_및_값(dataTable, "distance");
+        Then("다음과 같은 경로와 거리 및 요금을 응답받는다", (DataTable dataTable) -> {
+            검증_경로_및_값_확인(dataTable, "distance");
         });
 
-        Then("다음과 같은 경로와 시간을 응답받는다", (DataTable dataTable) -> {
-            검증_경로_및_값(dataTable, "duration");
+        Then("다음과 같은 경로와 시간 및 요금을 응답받는다", (DataTable dataTable) -> {
+            검증_경로_및_값_확인(dataTable, "duration");
         });
     }
 
@@ -44,19 +44,29 @@ public class PathStepDef implements En {
                 .extract();
     }
 
-    private void 검증_경로_및_값(DataTable dataTable, String valueType) {
+    private void 검증_경로_및_값_확인(DataTable dataTable, String valueType) {
         List<Map<String, String>> rows = dataTable.asMaps(String.class, String.class);
         for (Map<String, String> row : rows) {
             String expectedPath = row.get("경로");
-            int expectedValue = Integer.parseInt(row.get(valueType.equals("distance") ? "거리" : "시간"));
+            int expectedDistance = valueType.equals("distance") ? Integer.parseInt(row.get("거리")) : 0;
+            int expectedDuration = valueType.equals("duration") ? Integer.parseInt(row.get("시간")) : 0;
+            int expectedFare = Integer.parseInt(row.get("요금"));
 
             List<String> actualStations = response.jsonPath().getList("stations.name");
-            int actualValue = response.jsonPath().getInt("amount");
+            int actualAmount = response.jsonPath().getInt("amount");
+            int actualFare = response.jsonPath().getInt("fare");
 
             String actualPath = String.join(" - ", actualStations);
 
             assertThat(actualPath).isEqualTo(expectedPath);
-            assertThat(actualValue).isEqualTo(expectedValue);
+
+            if (valueType.equals("distance")) {
+                assertThat(actualAmount).isEqualTo(expectedDistance);
+            } else {
+                assertThat(actualAmount).isEqualTo(expectedDuration);
+            }
+
+            assertThat(actualFare).isEqualTo(expectedFare);
         }
     }
 }
