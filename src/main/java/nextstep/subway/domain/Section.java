@@ -48,4 +48,8 @@ public class Section {
 
         return new Section(line, upStation, downStation, distance, duration);
     }
+
+    public boolean containsStations(Station upStation, Station downStation) {
+        return (this.upStation.equals(upStation) && this.downStation.equals(downStation));
+    }
 }
