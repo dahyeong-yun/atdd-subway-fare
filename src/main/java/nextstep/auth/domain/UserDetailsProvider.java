@@ -1,9 +1,6 @@
 package nextstep.auth.domain;
 
-import nextstep.member.domain.Member;
-
-
-public interface UserDetails {
+public interface UserDetailsProvider {
     String getPrincipal();
     String getCredential();
 }
