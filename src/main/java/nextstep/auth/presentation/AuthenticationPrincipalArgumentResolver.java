@@ -12,6 +12,10 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 
 @RequiredArgsConstructor
 public class AuthenticationPrincipalArgumentResolver implements HandlerMethodArgumentResolver {
+    private static final String BEARER_TYPE = "Bearer";
+    private static final String AUTHORIZATION_HEADER = "Authorization";
+    private static final int TOKEN_INDEX = 1;
+
     private final JwtTokenProvider jwtTokenProvider;
 
     @Override
@@ -21,12 +25,14 @@ public class AuthenticationPrincipalArgumentResolver implements HandlerMethodArg
 
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
-        String authorization = webRequest.getHeader("Authorization");
-        if (!"bearer".equalsIgnoreCase(authorization.split(" ")[0])) {
+        String authorization = webRequest.getHeader(AUTHORIZATION_HEADER);
+        String[] parts = authorization.split(" ");
+
+        if (parts.length < 2 || !BEARER_TYPE.equalsIgnoreCase(parts[0])) {
             throw new AuthenticationException();
         }
 
-        String token = authorization.split(" ")[1];
+        String token = parts[TOKEN_INDEX];
         if (!jwtTokenProvider.validateToken(token)) {
             throw new AuthenticationException();
         }

@@ -2,8 +2,10 @@ package nextstep.auth.application;
 
 import nextstep.auth.domain.UserDetails;
 
+import java.util.function.Supplier;
+
 public interface UserDetailService {
-    UserDetails findOrElseGet(String email);
+    UserDetails findOrElseDefault(String email, Supplier<UserDetails> defaultSupplier);
 
     UserDetails findByEmail(String email);
 }

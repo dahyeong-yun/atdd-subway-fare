@@ -1,6 +1,7 @@
 package nextstep.subway.domain;
 
 import lombok.RequiredArgsConstructor;
+import nextstep.common.exception.PathNotFoundException;
 import nextstep.common.exception.StationNotFoundException;
 import nextstep.subway.infrastructure.SectionRepository;
 import nextstep.subway.infrastructure.StationRepository;
@@ -14,6 +15,10 @@ public class PathFinderServiceImpl implements PathFinderService {
     private final SectionRepository sectionRepository;
     private final StationRepository stationRepository;
 
+    private final FareCalculator fareCalculator;
+    private final DistanceCalculator distanceCalculator;
+
+
     @Override
     public PathResult findPath(Long sourceId, Long targetId, PathType pathType) {
         List<Section> allSections = sectionRepository.findAll();
@@ -25,16 +30,15 @@ public class PathFinderServiceImpl implements PathFinderService {
                 .orElseThrow(() -> new StationNotFoundException(targetId));
 
         PathFinder pathFinder = PathFinderFactory.createPathFinder(allSections, allStations, pathType);
-        return pathFinder.getShortestPath(sourceStation, targetStation, pathType);
-    }
+        PathResult shortestPath = pathFinder.getShortestPath(sourceStation, targetStation, pathType);
 
-    @Override
-    public boolean isValidPath(Long sourceId, Long targetId) {
-        try {
-            PathResult pathResult = findPath(sourceId, targetId, PathType.DISTANCE);
-            return !pathResult.getPathStations().isEmpty() && pathResult.getTotalPathWeight() > 0;
-        } catch (Exception e) {
-            return false;
+        if (shortestPath.isNotValidPath()) {
+            throw new PathNotFoundException(sourceStation.getId(), targetStation.getId());
         }
+
+        int totalDistance = distanceCalculator.calculateTotalDistance(shortestPath.getPathStations(), allSections);
+        int fare = fareCalculator.calculateFare(totalDistance);
+
+        return shortestPath.addFare(fare);
     }
 }

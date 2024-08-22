@@ -5,24 +5,34 @@ import nextstep.auth.application.UserDetailService;
 import nextstep.auth.domain.UserDetails;
 import nextstep.common.exception.MemberNotFoundException;
 import nextstep.member.domain.Member;
+import nextstep.member.domain.UserDetailsMapper;
 import nextstep.member.infrastructure.MemberRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.function.Supplier;
 
 @RequiredArgsConstructor
 @Service
 public class UserDetailServiceImpl implements UserDetailService {
     private final MemberRepository memberRepository;
+    private final UserDetailsMapper userDetailsMapper;
 
     @Override
     public UserDetails findByEmail(String email) {
         var member = memberRepository.findByEmail(email).orElseThrow(() -> new MemberNotFoundException(email));
-        return UserDetails.from(member);
+        return userDetailsMapper.toUserDetails(member);
     }
 
     @Override
-    public UserDetails findOrElseGet(String email) {
-        Member member = memberRepository.findByEmail(email)
-                .orElseGet(() -> memberRepository.save(new Member(email)));
-        return UserDetails.from(member);
+    public UserDetails findOrElseDefault(String email, Supplier<UserDetails> defaultSupplier) {
+        return memberRepository.findByEmail(email)
+                .map(userDetailsMapper::toUserDetails)
+                .orElseGet(() -> {
+                    UserDetails userDetails = defaultSupplier.get();
+                    Member newMember = new Member(userDetails.getPrincipal());
+                    memberRepository.save(newMember);
+                    return userDetails;
+                });
+
     }
 }

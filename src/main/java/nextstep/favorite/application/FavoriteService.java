@@ -1,14 +1,16 @@
 package nextstep.favorite.application;
 
 import lombok.RequiredArgsConstructor;
+import nextstep.auth.domain.LoginMember;
 import nextstep.common.exception.*;
 import nextstep.favorite.domain.Favorite;
 import nextstep.favorite.infrastructure.FavoriteRepository;
 import nextstep.favorite.presentation.FavoriteRequest;
-import nextstep.auth.domain.LoginMember;
 import nextstep.member.domain.Member;
 import nextstep.member.infrastructure.MemberRepository;
 import nextstep.subway.domain.PathFinderService;
+import nextstep.subway.domain.PathResult;
+import nextstep.subway.domain.PathType;
 import nextstep.subway.domain.Station;
 import nextstep.subway.infrastructure.StationRepository;
 import org.springframework.stereotype.Service;
@@ -31,7 +33,10 @@ public class FavoriteService {
         Station targetStation = findStationByIdOrThrow(request.getTargetStationId());
         Member member = findMemberByIdOrThrow(loginMember);
 
-        if (!pathFinderService.isValidPath(sourceStation.getId(), targetStation.getId())) {
+        PathResult shortestPath
+                = pathFinderService.findPath(sourceStation.getId(), targetStation.getId(), PathType.DISTANCE);
+
+        if (shortestPath.isNotValidPath()) {
             throw new PathNotFoundException(sourceStation.getId(), targetStation.getId());
         }
 
