@@ -78,26 +78,32 @@ public class PathStepDef implements En {
     private void 검증_경로_및_값_확인(DataTable dataTable, String valueType) {
         List<Map<String, String>> rows = dataTable.asMaps(String.class, String.class);
         for (Map<String, String> row : rows) {
-            String expectedPath = row.get("경로");
-            int expectedDistance = valueType.equals("distance") ? Integer.parseInt(row.get("거리")) : 0;
-            int expectedDuration = valueType.equals("duration") ? Integer.parseInt(row.get("시간")) : 0;
-            int expectedFare = Integer.parseInt(row.get("요금"));
-
-            List<String> actualStations = response.jsonPath().getList("stations.name");
-            int actualAmount = response.jsonPath().getInt("amount");
-            int actualFare = response.jsonPath().getInt("fare");
-
-            String actualPath = String.join(" - ", actualStations);
-
-            assertThat(actualPath).isEqualTo(expectedPath);
-
-            if (valueType.equals("distance")) {
-                assertThat(actualAmount).isEqualTo(expectedDistance);
-            } else {
-                assertThat(actualAmount).isEqualTo(expectedDuration);
-            }
-
-            assertThat(actualFare).isEqualTo(expectedFare);
+            검증_경로(row.get("경로"));
+            검증_거리_또는_시간(row, valueType);
+            검증_요금(Integer.parseInt(row.get("요금")));
         }
+    }
+
+    private void 검증_경로(String expectedPath) {
+        String actualPath = 실제_경로_추출();
+        assertThat(actualPath).isEqualTo(expectedPath);
+    }
+
+    private void 검증_거리_또는_시간(Map<String, String> row, String valueType) {
+        int expectedValue = valueType.equals("distance")
+                ? Integer.parseInt(row.get("거리"))
+                : Integer.parseInt(row.get("시간"));
+        int actualValue = response.jsonPath().getInt("amount");
+        assertThat(actualValue).isEqualTo(expectedValue);
+    }
+
+    private void 검증_요금(int expectedFare) {
+        int actualFare = response.jsonPath().getInt("fare");
+        assertThat(actualFare).isEqualTo(expectedFare);
+    }
+
+    private String 실제_경로_추출() {
+        List<String> actualStations = response.jsonPath().getList("stations.name");
+        return String.join(" - ", actualStations);
     }
 }
