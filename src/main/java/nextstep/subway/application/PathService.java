@@ -1,8 +1,8 @@
 package nextstep.subway.application;
 
 import lombok.RequiredArgsConstructor;
-import nextstep.subway.domain.PathFinderService;
 import nextstep.subway.domain.Path;
+import nextstep.subway.domain.PathFinderService;
 import nextstep.subway.domain.PathType;
 import org.springframework.stereotype.Service;
 
