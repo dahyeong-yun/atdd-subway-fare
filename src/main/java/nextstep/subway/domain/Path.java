@@ -3,7 +3,6 @@ package nextstep.subway.domain;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import nextstep.auth.domain.LoginMember;
 import nextstep.common.exception.SectionNotFoundException;
 
 import java.util.ArrayList;
@@ -12,6 +11,21 @@ import java.util.List;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 public class Path {
+    private static final int BASE_FARE = 1250;
+    private static final int CHILD_AGE_MIN = 6;
+    private static final int CHILD_AGE_MAX = 13;
+    private static final int TEENAGER_AGE_MIN = 13;
+    private static final int TEENAGER_AGE_MAX = 19;
+    private static final int FARE_DEDUCTION = 350;
+    private static final double CHILD_DISCOUNT_RATE = 0.5;
+    private static final double TEENAGER_DISCOUNT_RATE = 0.8;
+    private static final int SHORT_DISTANCE_LIMIT = 10;
+    private static final int LONG_DISTANCE_LIMIT = 50;
+    private static final int DISTANCE_FARE_UNIT = 5;
+    private static final int DISTANCE_FARE_AMOUNT = 100;
+    private static final int LONG_DISTANCE_BASE_FARE = 800;
+    private static final int LONG_DISTANCE_FARE_UNIT = 8;
+
     private List<Section> sections = new ArrayList<>();
     private final List<Station> stations;
     private final PathType pathType;
@@ -60,30 +74,27 @@ public class Path {
     }
 
     private int calculateFare(int age) {
-        int baseFare = 1250;
         int extraFare = calculateDistanceFare();
         int lineExtraFare = calculateLineExtraFare();
-        int totalFare = baseFare + extraFare + lineExtraFare;
+        int totalFare = BASE_FARE + extraFare + lineExtraFare;
 
-        if (age >= 6 && age < 13) {
-            // 어린이: 운임에서 350원을 공제한 금액의 50% 할인
-            return Math.max(0, (int) ((totalFare - 350) * 0.5));
-        } else if (age >= 13 && age < 19) {
-            // 청소년: 운임에서 350원을 공제한 금액의 20% 할인
-            return Math.max(0, (int) ((totalFare - 350) * 0.8));
+        if (age >= CHILD_AGE_MIN && age < CHILD_AGE_MAX) {
+            return Math.max(0, (int) ((totalFare - FARE_DEDUCTION) * CHILD_DISCOUNT_RATE));
+        } else if (age >= TEENAGER_AGE_MIN && age < TEENAGER_AGE_MAX) {
+            return Math.max(0, (int) ((totalFare - FARE_DEDUCTION) * TEENAGER_DISCOUNT_RATE));
         }
 
         return totalFare;
     }
 
     private int calculateDistanceFare() {
-        if (distance <= 10) {
+        if (distance <= SHORT_DISTANCE_LIMIT) {
             return 0;
         }
-        if (distance <= 50) {
-            return ((distance - 10 + 4) / 5) * 100;
+        if (distance <= LONG_DISTANCE_LIMIT) {
+            return ((distance - SHORT_DISTANCE_LIMIT + DISTANCE_FARE_UNIT - 1) / DISTANCE_FARE_UNIT) * DISTANCE_FARE_AMOUNT;
         }
-        return 800 + ((distance - 50 + 7) / 8) * 100;
+        return LONG_DISTANCE_BASE_FARE + ((distance - LONG_DISTANCE_LIMIT + LONG_DISTANCE_FARE_UNIT - 1) / LONG_DISTANCE_FARE_UNIT) * DISTANCE_FARE_AMOUNT;
     }
 
     private int calculateLineExtraFare() {
