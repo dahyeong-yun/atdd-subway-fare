@@ -34,7 +34,7 @@ public class FavoriteService {
         Member member = findMemberByIdOrThrow(loginMember);
 
         Path shortestPath
-                = pathFinderService.findPath(sourceStation.getId(), targetStation.getId(), PathType.DISTANCE);
+                = pathFinderService.findPath(sourceStation.getId(), targetStation.getId(), PathType.DISTANCE, member.getAge());
 
         if (!shortestPath.isValid()) {
             throw new PathNotFoundException(sourceStation.getId(), targetStation.getId());

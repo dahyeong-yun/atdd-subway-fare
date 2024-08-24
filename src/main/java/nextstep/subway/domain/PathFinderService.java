@@ -1,6 +1,7 @@
 package nextstep.subway.domain;
 
 import lombok.RequiredArgsConstructor;
+import nextstep.auth.domain.LoginMember;
 import nextstep.common.exception.PathNotFoundException;
 import nextstep.common.exception.StationNotFoundException;
 import nextstep.subway.infrastructure.SectionRepository;
@@ -15,7 +16,7 @@ public class PathFinderService {
     private final SectionRepository sectionRepository;
     private final StationRepository stationRepository;
 
-    public Path findPath(Long sourceId, Long targetId, PathType pathType) {
+    public Path findPath(Long sourceId, Long targetId, PathType pathType, int age) {
         List<Section> allSections = sectionRepository.findAll();
         List<Station> allStations = stationRepository.findAll();
 
@@ -25,7 +26,7 @@ public class PathFinderService {
                 .orElseThrow(() -> new StationNotFoundException(targetId));
 
         PathFinder pathFinder = PathFinderFactory.createPathFinder(allSections, allStations, pathType);
-        Path shortestPath = pathFinder.getShortestPath(allSections, sourceStation, targetStation, pathType);
+        Path shortestPath = pathFinder.getShortestPath(allSections, sourceStation, targetStation, pathType, age);
 
         if (!shortestPath.isValid()) {
             throw new PathNotFoundException(sourceStation.getId(), targetStation.getId());

@@ -16,7 +16,7 @@ import java.util.List;
 public class PathFinder {
     private final WeightedMultigraph<Station, DefaultWeightedEdge> graph;
 
-    public Path getShortestPath(List<Section> allSections, Station sourceStation, Station targetStation, PathType pathType) {
+    public Path getShortestPath(List<Section> allSections, Station sourceStation, Station targetStation, PathType pathType, int age) {
         if (sourceStation.equals(targetStation)) {
             throw new PathNotFoundException(sourceStation.getId(), targetStation.getId());
         }
@@ -32,6 +32,6 @@ public class PathFinder {
 
         int totalWeight = (int) shortestPathStationGraph.getWeight(); // 이것이 시간일 수도, 거리 일 수도
 
-        return Path.createPath(pathStations, allSections, pathType, totalWeight, 20); // TODO 로그인 한 사용자의 나이로 변경
+        return Path.createPath(pathStations, allSections, pathType, totalWeight, age);
     }
 }
