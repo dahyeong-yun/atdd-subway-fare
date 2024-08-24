@@ -5,12 +5,13 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import nextstep.common.exception.SectionNotFoundException;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 public class Path {
+    private List<Section> sections = new ArrayList<>();
     private final List<Station> stations;
     private final PathType pathType;
     private final int totalWeight;
@@ -22,8 +23,7 @@ public class Path {
         this.stations = stations;
         this.pathType = pathType;
         this.totalWeight = totalWeight;
-        this.distance = calculateTotalAttribute(stations, allSections, this::findSectionDistance);
-        this.duration = calculateTotalAttribute(stations, allSections, this::findSectionDuration);
+        calculateTotalAttribute(stations, allSections);
         this.fare = calculateFare();
     }
 
@@ -31,16 +31,16 @@ public class Path {
         return new Path(stations, allSections, pathType, totalWeight);
     }
 
-    private int calculateTotalAttribute(List<Station> pathStations, List<Section> allSections,
-                                        Function<Section, Integer> attributeExtractor) {
-        int total = 0;
+    private void calculateTotalAttribute(List<Station> pathStations, List<Section> allSections) {
         for (int i = 0; i < pathStations.size() - 1; i++) {
             Station upStation = pathStations.get(i);
             Station downStation = pathStations.get(i + 1);
             Section section = findSection(upStation, downStation, allSections);
-            total += attributeExtractor.apply(section);
+
+            this.sections.add(section);
+            this.distance += findSectionDistance(section);
+            this.duration += findSectionDuration(section);
         }
-        return total;
     }
 
     private Section findSection(Station upStation, Station downStation, List<Section> allSections) {
@@ -60,16 +60,27 @@ public class Path {
 
     private int calculateFare() {
         int baseFare = 1250;
-        int extraFare = 0;
+        int extraFare = calculateDistanceFare();
+        int lineExtraFare = calculateLineExtraFare();
+        return baseFare + extraFare + lineExtraFare;
+    }
 
-        if (distance > 10 && distance <= 50) {
-            extraFare += ((distance - 10 + 4) / 5) * 100;
-        } else if (distance > 50) {
-            extraFare += 8 * 100;  // 10km ~ 50km 구간의 요금
-            extraFare += ((distance - 50 + 7) / 8) * 100;  // 50km 초과 구간의 요금
+    private int calculateDistanceFare() {
+        if (distance <= 10) {
+            return 0;
         }
+        if (distance <= 50) {
+            return ((distance - 10 + 4) / 5) * 100;
+        }
+        return 800 + ((distance - 50 + 7) / 8) * 100;
+    }
 
-        return baseFare + extraFare;
+    private int calculateLineExtraFare() {
+        return sections.stream()
+                .map(Section::getLine)
+                .mapToInt(Line::getExtraFare)
+                .max()
+                .orElse(0);
     }
 
     public boolean isValid() {
