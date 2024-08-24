@@ -6,6 +6,7 @@ import lombok.Getter;
 import nextstep.common.exception.SectionNotFoundException;
 
 import java.util.List;
+import java.util.function.Function;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
@@ -21,66 +22,54 @@ public class Path {
         this.stations = stations;
         this.pathType = pathType;
         this.totalWeight = totalWeight;
-        this.duration = calculateTotalDuration(stations, allSections);
-        this.distance = calculateTotalDistance(stations, allSections);
+        this.distance = calculateTotalAttribute(stations, allSections, this::findSectionDistance);
+        this.duration = calculateTotalAttribute(stations, allSections, this::findSectionDuration);
         this.fare = calculateFare();
-
     }
 
     public static Path createPath(List<Station> stations, List<Section> allSections, PathType pathType, int totalWeight) {
         return new Path(stations, allSections, pathType, totalWeight);
     }
 
-    private int calculateTotalDistance(List<Station> pathStations, List<Section> allSections) {
-        int totalDistance = 0;
+    private int calculateTotalAttribute(List<Station> pathStations, List<Section> allSections,
+                                        Function<Section, Integer> attributeExtractor) {
+        int total = 0;
         for (int i = 0; i < pathStations.size() - 1; i++) {
             Station upStation = pathStations.get(i);
             Station downStation = pathStations.get(i + 1);
-            totalDistance += findSectionDistance(upStation, downStation, allSections);
+            Section section = findSection(upStation, downStation, allSections);
+            total += attributeExtractor.apply(section);
         }
-        return totalDistance;
+        return total;
     }
 
-    private int calculateTotalDuration(List<Station> pathStations, List<Section> allSections) {
-        int totalDistance = 0;
-        for (int i = 0; i < pathStations.size() - 1; i++) {
-            Station upStation = pathStations.get(i);
-            Station downStation = pathStations.get(i + 1);
-            totalDistance += findSectionDuration(upStation, downStation, allSections);
-        }
-        return totalDistance;
-    }
-
-    private int findSectionDistance(Station upStation, Station downStation, List<Section> allSections) {
+    private Section findSection(Station upStation, Station downStation, List<Section> allSections) {
         return allSections.stream()
-                .filter(section -> (section.containsStations(upStation, downStation)))
+                .filter(section -> section.containsStations(upStation, downStation))
                 .findFirst()
-                .map(section -> section.getSectionDistance().getDistance())
                 .orElseThrow(() -> new SectionNotFoundException(upStation, downStation));
     }
 
-    private int findSectionDuration(Station upStation, Station downStation, List<Section> allSections) {
-        return allSections.stream()
-                .filter(section -> (section.containsStations(upStation, downStation)))
-                .findFirst()
-                .map(Section::getSectionDuration)
-                .orElseThrow(() -> new SectionNotFoundException(upStation, downStation));
+    private int findSectionDistance(Section section) {
+        return section.getSectionDistance().getDistance();
+    }
+
+    private int findSectionDuration(Section section) {
+        return section.getSectionDuration();
     }
 
     private int calculateFare() {
-        int distance = getDistance();
         int baseFare = 1250;
         int extraFare = 0;
 
-        if (distance > 10) {
-            extraFare += ((distance - 10) / 5) * 100;
-        }
-        if (distance > 50) {
-            extraFare += ((distance - 50) / 8) * 100;
+        if (distance > 10 && distance <= 50) {
+            extraFare += ((distance - 10 + 4) / 5) * 100;
+        } else if (distance > 50) {
+            extraFare += 8 * 100;  // 10km ~ 50km 구간의 요금
+            extraFare += ((distance - 50 + 7) / 8) * 100;  // 50km 초과 구간의 요금
         }
 
-        this.fare = baseFare + extraFare;
-        return this.fare;
+        return baseFare + extraFare;
     }
 
     public boolean isValid() {
