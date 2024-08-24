@@ -3,6 +3,7 @@ package nextstep.subway.domain;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import nextstep.auth.domain.LoginMember;
 import nextstep.common.exception.SectionNotFoundException;
 
 import java.util.ArrayList;
@@ -19,16 +20,16 @@ public class Path {
     private int distance;
     private int duration;
 
-    private Path(List<Station> stations, List<Section> allSections, PathType pathType, int totalWeight) {
+    private Path(List<Station> stations, List<Section> allSections, PathType pathType, int totalWeight, int age) {
         this.stations = stations;
         this.pathType = pathType;
         this.totalWeight = totalWeight;
         calculateTotalAttribute(stations, allSections);
-        this.fare = calculateFare();
+        this.fare = calculateFare(age);
     }
 
-    public static Path createPath(List<Station> stations, List<Section> allSections, PathType pathType, int totalWeight) {
-        return new Path(stations, allSections, pathType, totalWeight);
+    public static Path createPath(List<Station> stations, List<Section> allSections, PathType pathType, int totalWeight, int age) {
+        return new Path(stations, allSections, pathType, totalWeight, age);
     }
 
     private void calculateTotalAttribute(List<Station> pathStations, List<Section> allSections) {
@@ -58,11 +59,21 @@ public class Path {
         return section.getSectionDuration();
     }
 
-    private int calculateFare() {
+    private int calculateFare(int age) {
         int baseFare = 1250;
         int extraFare = calculateDistanceFare();
         int lineExtraFare = calculateLineExtraFare();
-        return baseFare + extraFare + lineExtraFare;
+        int totalFare = baseFare + extraFare + lineExtraFare;
+
+        if (age >= 6 && age < 13) {
+            // 어린이: 운임에서 350원을 공제한 금액의 50% 할인
+            return Math.max(0, (int) ((totalFare - 350) * 0.5));
+        } else if (age >= 13 && age < 19) {
+            // 청소년: 운임에서 350원을 공제한 금액의 20% 할인
+            return Math.max(0, (int) ((totalFare - 350) * 0.8));
+        }
+
+        return totalFare;
     }
 
     private int calculateDistanceFare() {

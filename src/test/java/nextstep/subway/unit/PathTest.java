@@ -62,7 +62,7 @@ class PathTest {
     @DisplayName("경로 생성 및 기본 속성 테스트")
     void createPath() {
         List<Station> 경로_역_목록 = Arrays.asList(강남역, 양재역, 양재시민의숲역);
-        Path 경로 = Path.createPath(경로_역_목록, 신분당선_전체_구간, PathType.DISTANCE, 11);
+        Path 경로 = Path.createPath(경로_역_목록, 신분당선_전체_구간, PathType.DISTANCE, 11, 20);
 
         assertThat(경로.getStations()).containsExactly(강남역, 양재역, 양재시민의숲역);
         assertThat(경로.getPathType()).isEqualTo(PathType.DISTANCE);
@@ -75,7 +75,7 @@ class PathTest {
     @DisplayName("요금 계산 테스트 - 기본 요금")
     void calculateFareBasic() {
         List<Station> 경로_역_목록 = Arrays.asList(교대역, 강남역);
-        Path 경로 = Path.createPath(경로_역_목록, Arrays.asList(이호선_교대_강남), PathType.DISTANCE, 2);
+        Path 경로 = Path.createPath(경로_역_목록, Arrays.asList(이호선_교대_강남), PathType.DISTANCE, 2, 20);
 
         assertThat(경로.getFare()).isEqualTo(1250);  // 기본 요금 1250
     }
@@ -84,7 +84,7 @@ class PathTest {
     @DisplayName("요금 계산 테스트 - 거리 추가 요금")
     void calculateFareExtraDistance() {
         List<Station> 경로_역_목록 = Arrays.asList(강남역, 양재역);
-        Path 경로 = Path.createPath(경로_역_목록, Arrays.asList(신분당선_강남_양재), PathType.DISTANCE, 8);
+        Path 경로 = Path.createPath(경로_역_목록, Arrays.asList(신분당선_강남_양재), PathType.DISTANCE, 8, 20);
 
         assertThat(경로.getFare()).isEqualTo(2150);  // 기본 요금 1250 + 신분당선 추가 요금 900
     }
@@ -94,7 +94,7 @@ class PathTest {
     void calculateFareExtraLine() {
         List<Station> 경로_역_목록 = Arrays.asList(교대역, 남부터미널역, 양재역);
         List<Section> 경로_구간_목록 = Arrays.asList(삼호선_교대_남부터미널, 삼호선_남부터미널_양재);
-        Path 경로 = Path.createPath(경로_역_목록, 경로_구간_목록, PathType.DISTANCE, 4);
+        Path 경로 = Path.createPath(경로_역_목록, 경로_구간_목록, PathType.DISTANCE, 4, 20);
 
         assertThat(경로.getFare()).isEqualTo(1750);  // 기본 요금 1250 + 3호선 추가 요금 500
     }
@@ -103,7 +103,7 @@ class PathTest {
     @DisplayName("요금 계산 테스트 - 장거리 및 노선 추가 요금")
     void calculateFareLongDistanceAndExtraLine() {
         List<Station> 경로_역_목록 = Arrays.asList(강남역, 양재역, 양재시민의숲역);
-        Path 경로 = Path.createPath(경로_역_목록, 신분당선_전체_구간, PathType.DISTANCE, 11);
+        Path 경로 = Path.createPath(경로_역_목록, 신분당선_전체_구간, PathType.DISTANCE, 11, 20);
 
         assertThat(경로.getFare()).isEqualTo(2250);  // 기본 요금 1250 + 거리 추가 요금 100 + 신분당선 추가 요금 900
     }
@@ -112,7 +112,7 @@ class PathTest {
     @DisplayName("여러 노선을 걸치는 경로 요금 계산")
     void calculateFareForMultipleLines() {
         List<Station> 경로_역_목록 = Arrays.asList(교대역, 강남역, 양재역);
-        Path 경로 = Path.createPath(경로_역_목록, 여러노선_포함_구간, PathType.DISTANCE, 10);
+        Path 경로 = Path.createPath(경로_역_목록, 여러노선_포함_구간, PathType.DISTANCE, 10, 20);
 
         assertThat(경로.getFare()).isEqualTo(2150);  // 기본 요금 1250 + 거리 추가 요금 0 + 신분당선 추가 요금 900 (가장 높은 추가 요금)
     }
@@ -121,7 +121,7 @@ class PathTest {
     @DisplayName("유효한 경로 확인")
     void isValidPath() {
         List<Station> 경로_역_목록 = Arrays.asList(강남역, 양재역);
-        Path 경로 = Path.createPath(경로_역_목록, Arrays.asList(신분당선_강남_양재), PathType.DISTANCE, 8);
+        Path 경로 = Path.createPath(경로_역_목록, Arrays.asList(신분당선_강남_양재), PathType.DISTANCE, 8, 20);
 
         assertThat(경로.isValid()).isTrue();
     }
@@ -130,7 +130,7 @@ class PathTest {
     @DisplayName("유효하지 않은 경로 확인 - 빈 경로")
     void isInvalidPathEmpty() {
         List<Station> 빈_경로_역_목록 = Arrays.asList();
-        Path 경로 = Path.createPath(빈_경로_역_목록, 신분당선_전체_구간, PathType.DISTANCE, 0);
+        Path 경로 = Path.createPath(빈_경로_역_목록, 신분당선_전체_구간, PathType.DISTANCE, 0, 20);
 
         assertThat(경로.isValid()).isFalse();
     }
@@ -139,7 +139,7 @@ class PathTest {
     @DisplayName("유효하지 않은 경로 확인 - 가중치 0")
     void isInvalidPathZeroWeight() {
         List<Station> 경로_역_목록 = Arrays.asList(강남역, 양재역);
-        Path 경로 = Path.createPath(경로_역_목록, Arrays.asList(신분당선_강남_양재), PathType.DISTANCE, 0);
+        Path 경로 = Path.createPath(경로_역_목록, Arrays.asList(신분당선_강남_양재), PathType.DISTANCE, 0, 20);
 
         assertThat(경로.isValid()).isFalse();
     }
@@ -150,7 +150,39 @@ class PathTest {
         Station 잠실역 = new Station("잠실역");
         List<Station> 유효하지않은_경로_역_목록 = Arrays.asList(강남역, 잠실역);
 
-        assertThatThrownBy(() -> Path.createPath(유효하지않은_경로_역_목록, 신분당선_전체_구간, PathType.DISTANCE, 10))
+        assertThatThrownBy(() -> Path.createPath(유효하지않은_경로_역_목록, 신분당선_전체_구간, PathType.DISTANCE, 10, 20))
                 .isInstanceOf(SectionNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("어린이 요금 계산 테스트")
+    void calculateFareForChild() {
+        List<Station> 경로_역_목록 = Arrays.asList(강남역, 양재역, 양재시민의숲역);
+        Path 경로 = Path.createPath(경로_역_목록, 신분당선_전체_구간, PathType.DISTANCE, 11, 10);  // 10세 어린이
+
+        // 기본 요금 1250 + 거리 추가 요금 100 + 신분당선 추가 요금 900 = 2250
+        // (2250 - 350) * 0.5 = 950
+        assertThat(경로.getFare()).isEqualTo(950);
+    }
+
+    @Test
+    @DisplayName("청소년 요금 계산 테스트")
+    void calculateFareForTeenager() {
+        List<Station> 경로_역_목록 = Arrays.asList(강남역, 양재역, 양재시민의숲역);
+        Path 경로 = Path.createPath(경로_역_목록, 신분당선_전체_구간, PathType.DISTANCE, 11, 15);  // 15세 청소년
+
+        // 기본 요금 1250 + 거리 추가 요금 100 + 신분당선 추가 요금 900 = 2250
+        // (2250 - 350) * 0.8 = 1520
+        assertThat(경로.getFare()).isEqualTo(1520);
+    }
+
+    @Test
+    @DisplayName("성인 요금 계산 테스트")
+    void calculateFareForAdult() {
+        List<Station> 경로_역_목록 = Arrays.asList(강남역, 양재역, 양재시민의숲역);
+        Path 경로 = Path.createPath(경로_역_목록, 신분당선_전체_구간, PathType.DISTANCE, 11, 25);  // 25세 성인
+
+        // 기본 요금 1250 + 거리 추가 요금 100 + 신분당선 추가 요금 900 = 2250
+        assertThat(경로.getFare()).isEqualTo(2250);
     }
 }

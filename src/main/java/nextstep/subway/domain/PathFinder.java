@@ -32,6 +32,6 @@ public class PathFinder {
 
         int totalWeight = (int) shortestPathStationGraph.getWeight(); // 이것이 시간일 수도, 거리 일 수도
 
-        return Path.createPath(pathStations, allSections, pathType, totalWeight);
+        return Path.createPath(pathStations, allSections, pathType, totalWeight, 20); // TODO 로그인 한 사용자의 나이로 변경
     }
 }
