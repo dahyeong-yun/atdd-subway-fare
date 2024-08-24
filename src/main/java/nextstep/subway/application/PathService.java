@@ -2,7 +2,7 @@ package nextstep.subway.application;
 
 import lombok.RequiredArgsConstructor;
 import nextstep.subway.domain.PathFinderService;
-import nextstep.subway.domain.PathResult;
+import nextstep.subway.domain.Path;
 import nextstep.subway.domain.PathType;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +13,7 @@ public class PathService {
 
     public PathResponse getPath(Long sourceId, Long targetId, String type) {
         PathType pathType = PathType.valueOf(type.toUpperCase());
-        PathResult pathResult = pathFinderService.findPath(sourceId, targetId, pathType);
-        return PathResponse.of(pathResult, pathType);
+        Path path = pathFinderService.findPath(sourceId, targetId, pathType);
+        return PathResponse.of(path, pathType);
     }
 }

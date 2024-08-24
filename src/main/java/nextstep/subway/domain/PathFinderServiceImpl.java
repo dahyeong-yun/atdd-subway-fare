@@ -15,12 +15,8 @@ public class PathFinderServiceImpl implements PathFinderService {
     private final SectionRepository sectionRepository;
     private final StationRepository stationRepository;
 
-    private final FareCalculator fareCalculator;
-    private final DistanceCalculator distanceCalculator;
-
-
     @Override
-    public PathResult findPath(Long sourceId, Long targetId, PathType pathType) {
+    public Path findPath(Long sourceId, Long targetId, PathType pathType) {
         List<Section> allSections = sectionRepository.findAll();
         List<Station> allStations = stationRepository.findAll();
 
@@ -30,15 +26,12 @@ public class PathFinderServiceImpl implements PathFinderService {
                 .orElseThrow(() -> new StationNotFoundException(targetId));
 
         PathFinder pathFinder = PathFinderFactory.createPathFinder(allSections, allStations, pathType);
-        PathResult shortestPath = pathFinder.getShortestPath(sourceStation, targetStation, pathType);
+        Path shortestPath = pathFinder.getShortestPath(allSections, sourceStation, targetStation, pathType);
 
-        if (shortestPath.isNotValidPath()) {
+        if (!shortestPath.isValid()) {
             throw new PathNotFoundException(sourceStation.getId(), targetStation.getId());
         }
 
-        int totalDistance = distanceCalculator.calculateTotalDistance(shortestPath.getPathStations(), allSections);
-        int fare = fareCalculator.calculateFare(totalDistance);
-
-        return shortestPath.addFare(fare);
+        return shortestPath;
     }
 }
